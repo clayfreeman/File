@@ -149,7 +149,7 @@ bool File::putContent(const std::string& path, const std::string& content,
   if (File::writable(path)) {
     FILE* fp = fopen(path.c_str(), (append == true ? "ab" : "wb"));
     if (fp != nullptr) {
-      fwrite(content.c_str(), sizeof(char), sizeof(content.c_str()), fp);
+      fwrite(content.c_str(), sizeof(char), strlen(content.c_str()), fp);
       fclose(fp);
       retVal = true;
     }
