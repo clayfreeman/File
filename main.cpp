@@ -1,6 +1,6 @@
 /**
- * @file  <file>.cpp
- * @brief <brief>
+ * @file  main.cpp
+ * @brief File Driver
  *
  * Test driver for File class
  *
