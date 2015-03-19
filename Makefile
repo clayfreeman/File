@@ -45,7 +45,7 @@ DEPENDMODULES	:= $(call RWILDCARD,$(MODSDIR),*.cpp)
 $(foreach item,$(DEPENDMODULES), \
 	$(eval DEPENDCPP := $(filter-out $(item),$(DEPENDCPP))) \
 )
-DEPENDH		:= $(call RWILDCARD,./,*.h)
+DEPENDH		:= $(call RWILDCARD,./,*.h) $(call RWILDCARD,./,*.hpp)
 DEPENDO		:= $(patsubst %.cpp,%.o, $(DEPENDCPP))
 DEPENDSO	:= $(patsubst %.cpp,%.so, $(DEPENDMODULES))
 DIR		:= $(shell basename "`pwd`")
