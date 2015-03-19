@@ -40,29 +40,30 @@ endif
 
 RWILDCARD	 = $(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard \
 			$(addsuffix *, $1)),$(call RWILDCARD,$d/,$2))
-DEPENDCPP	:= $(call RWILDCARD,./,*.cpp)
-DEPENDMODULES	:= $(call RWILDCARD,$(MODSDIR),*.cpp)
+DEPENDCPP	:= $(subst ./,,$(call RWILDCARD,./,*.cpp))
+DEPENDMODULES	:= $(subst ./,,$(call RWILDCARD,$(MODSDIR),*.cpp))
 $(foreach item,$(DEPENDMODULES), \
 	$(eval DEPENDCPP := $(filter-out $(item),$(DEPENDCPP))) \
 )
-DEPENDH		:= $(call RWILDCARD,./,*.h) $(call RWILDCARD,./,*.hpp)
+DEPENDH		:= $(subst ./,,$(call RWILDCARD,./,*.h)) \
+			$(subst ./,,$(call RWILDCARD,./,*.hpp))
 DEPENDO		:= $(patsubst %.cpp,%.o, $(DEPENDCPP))
 DEPENDSO	:= $(patsubst %.cpp,%.so, $(DEPENDMODULES))
 DIR		:= $(shell basename "`pwd`")
-CLEAN		:= $(call RWILDCARD,./,*.dSYM) $(DEPENDO) \
+CLEAN		:= $(subst ./,,$(call RWILDCARD,./,*.dSYM)) $(DEPENDO) \
 			$(DEPENDSO) $(OUT) $(OUT).zip
 
   ############################### UTIL TARGETS ###############################
 
 # Builds and links the application
-target_default =
+target_default	 =
 
 ifeq ($(words $(MAKECMDGOALS)),0)
-target_default = yes
+target_default	 = yes
 endif
 
 ifeq ($(words $(MAKECMDGOALS)),1)
-target_default = yes
+target_default	 = yes
 endif
 
 ifndef target_default
@@ -91,9 +92,8 @@ zip:		$(OUT).zip
 # Run cppcheck and valgrind to point out any potential mistakes in your code
 test:		all
 	@$(foreach item,$(DEPENDCPP), \
-		$(eval CNAME := $(subst ./,,$(item))) \
 		$(BASH) $(BASHFLAGS) "printf \"[$(WARN)CHK$(RESET)] \""; \
-		$(CPPCHECK) $(CPPCHECKFLAGS) $(CNAME); \
+		$(CPPCHECK) $(CPPCHECKFLAGS) $(item); \
 	)
 	@$(BASH) $(BASHFLAGS) \
 		"echo -e \"[$(WARN)CHK$(RESET)] Press enter to run memcheck.\""
@@ -103,9 +103,8 @@ test:		all
 # Remove any compiled or ZIP files if they exist
 clean:
 	@$(foreach item,$(CLEAN), $(BASH) $(BASHFLAGS) \
-		$(eval CNAME := $(subst $(ROOTDIR)/,,$(item))) \
 		"if [ -a $(item) ]; then \
-			echo -e \"[$(ERROR)DEL$(RESET)] $(CNAME)\"; \
+			echo -e \"[$(ERROR)DEL$(RESET)] $(item)\"; \
 			rm -rf $(item); \
 		fi;"; \
 	)
@@ -116,29 +115,25 @@ endif
 
 # Links your application.  Depends on all applicable .o files
 $(OUT):		$(DEPENDO)
-	$(eval CNAME := $(subst $(ROOTDIR)/,,$@))
-	@$(BASH) $(BASHFLAGS) "echo -e \"[$(OK)LNK$(RESET)] $(CNAME) ...\""
-	@$(CXX) $(CXXFLAGS) -rdynamic -o "$@" $^ $(LIBS)
+	@$(BASH) $(BASHFLAGS) "echo -e \"[$(OK)LNK$(RESET)] $@ ...\""
+	@$(CXX) $(CXXFLAGS) -rdynamic -o $@ $^ $(LIBS)
 
 # Builds a ZIP file from your source files and Makefile
 $(OUT).zip:	$(DEPENDCPP) $(DEPENDMODULES) $(DEPENDH) Makefile
 	@rm -f $@
-	$(eval CNAME := $(subst $(ROOTDIR)/,,$@))
-	@$(BASH) $(BASHFLAGS) "echo -e \"[$(OK)ZIP$(RESET)] $(CNAME) ...\""
-	@$(ZIP) $(ZIPFLAGS) -r "$@" $^
+	@$(BASH) $(BASHFLAGS) "echo -e \"[$(OK)ZIP$(RESET)] $@ ...\""
+	@$(ZIP) $(ZIPFLAGS) -r $@ $^
 
 # Builds any object file from a CPP file
 %.o:		%.cpp | $(DEPENDH)
-	$(eval CNAME := $(subst $(ROOTDIR)/,,$@))
-	@$(BASH) $(BASHFLAGS) "echo -e \"[$(WARN)CXX$(RESET)] $(CNAME) ...\""
-	@$(CXX) $(CXXFLAGS) -c -o "$@" $^
+	@$(BASH) $(BASHFLAGS) "echo -e \"[$(WARN)CXX$(RESET)] $@ ...\""
+	@$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 %.so:		%.cpp | $(DEPENDH)
-	$(eval CNAME := $(subst $(ROOTDIR)/,,$@))
-	@$(BASH) $(BASHFLAGS) "echo -e \"[$(WARN)CSO$(RESET)] $(CNAME) ...\""
+	@$(BASH) $(BASHFLAGS) "echo -e \"[$(WARN)CSO$(RESET)] $@ ...\""
 ifneq ($(shell uname),Darwin)
-	@$(CXX) $(CXXFLAGS) -shared -o "$@" $^
+	@$(CXX) $(CXXFLAGS) -shared -o $@ $^
 else
 	@$(CXX) $(CXXFLAGS) -dynamiclib -undefined suppress -flat_namespace \
-		-o "$@" $^
+		-o $@ $^
 endif
