@@ -89,6 +89,10 @@ debug:		.debug all
 # Builds a ZIP file of your CPP/H/Makefile files
 zip:		$(OUT).zip
 
+# Output number of lines in files that match '(\.c(pp)?$)|(\.h(pp)?$)'
+lines:
+	@find . -type f | egrep '(\.c(pp)?$$)|(\.h(pp)?$$)' | sort | xargs wc -l
+
 # Run cppcheck and valgrind to point out any potential mistakes in your code
 test:		all
 	@$(foreach item,$(DEPENDCPP), \
