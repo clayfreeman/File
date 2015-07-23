@@ -89,6 +89,19 @@ std::string File::directory(const std::string& path) {
 }
 
 /**
+ * @brief Executable
+ *
+ * Checks if the given path is executable by the current process
+ *
+ * @param path The path for which to check access
+ *
+ * @return true if executable, false otherwise
+ */
+bool File::executable(const std::string& path) {
+  return (access(path.c_str(), X_OK) == 0);
+}
+
+/**
  * @brief Exists
  *
  * Checks if a given path exists
