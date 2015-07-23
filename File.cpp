@@ -133,6 +133,34 @@ std::string File::getContent(const std::string& path) {
 }
 
 /**
+ * @brief Is Directory
+ *
+ * Checks if the given path is a directory
+ *
+ * @param path The path for which to check
+ *
+ * @return true if directory, false otherwise
+ */
+bool File::isDirectory(const std::string& path) {
+  struct stat buffer;
+  return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFDIR);
+}
+
+/**
+ * @brief Is File
+ *
+ * Checks if the given path is a file
+ *
+ * @param path The path for which to check
+ *
+ * @return true if file, false otherwise
+ */
+bool File::isFile(const std::string& path) {
+  struct stat buffer;
+  return (stat(path.c_str(), &buffer) == 0 && buffer.st_mode & S_IFREG);
+}
+
+/**
  * @brief Put Content
  *
  * Puts the given content in the file at the given path
