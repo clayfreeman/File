@@ -222,7 +222,8 @@ bool File::readable(const std::string& path) {
  */
 std::string File::realPath(const std::string& path) {
   char* rpath = realpath(path.c_str(), nullptr);
-  std::string retVal{rpath};
+  std::string retVal;
+  retVal.copy(rpath, PATH_MAX, 0);
   free(rpath);
   return retVal;
 }
