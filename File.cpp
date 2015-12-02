@@ -19,22 +19,6 @@
 #include "File.hpp"
 
 /**
- * @brief Name
- *
- * Computes the basename for a given path
- *
- * @param path The path for which to compute a basename
- *
- * @return basename of path
- */
-std::string File::name(const std::string& path) {
-  char* dup = strdup(path.c_str());
-  std::string retVal{basename(dup)};
-  free(dup);
-  return retVal;
-}
-
-/**
  * @brief Create
  *
  * Creates a file for the given path if it doesn't exist
@@ -51,23 +35,6 @@ bool File::create(const std::string& path) {
       fclose(fp);
       retVal = true;
     }
-  }
-  return retVal;
-}
-
-/**
- * @brief Remove
- *
- * Unlinks the file (or symlink) at the given path
- *
- * @param path The path for which to unlink
- *
- * @return true if unlinked, false otherwise
- */
-bool File::remove(const std::string& path) {
-  bool retVal = false;
-  if (File::exists(path)) {
-    retVal = unlink(path.c_str()) == 0;
   }
   return retVal;
 }
@@ -174,6 +141,22 @@ bool File::isFile(const std::string& path) {
 }
 
 /**
+ * @brief Name
+ *
+ * Computes the basename for a given path
+ *
+ * @param path The path for which to compute a basename
+ *
+ * @return basename of path
+ */
+std::string File::name(const std::string& path) {
+  char* dup = strdup(path.c_str());
+  std::string retVal{basename(dup)};
+  free(dup);
+  return retVal;
+}
+
+/**
  * @brief Put Content
  *
  * Puts the given content in the file at the given path
@@ -221,9 +204,30 @@ bool File::readable(const std::string& path) {
  * @return real path
  */
 std::string File::realPath(const std::string& path) {
+  std::string retVal;
   char* rpath = realpath(path.c_str(), nullptr);
-  std::string retVal(rpath);
-  free(rpath);
+  if (rpath != nullptr) {
+    retVal = std::string{rpath};
+    free(rpath);
+  }
+  rpath = nullptr;
+  return retVal;
+}
+
+/**
+ * @brief Remove
+ *
+ * Unlinks the file (or symlink) at the given path
+ *
+ * @param path The path for which to unlink
+ *
+ * @return true if unlinked, false otherwise
+ */
+bool File::remove(const std::string& path) {
+  bool retVal = false;
+  if (File::exists(path)) {
+    retVal = unlink(path.c_str()) == 0;
+  }
   return retVal;
 }
 
