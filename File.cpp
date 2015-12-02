@@ -205,12 +205,10 @@ bool File::readable(const std::string& path) {
  */
 std::string File::realPath(const std::string& path) {
   std::string retVal;
-  char* rpath = realpath(path.c_str(), nullptr);
-  if (rpath != nullptr) {
+  char rpath[PATH_MAX + 1];
+  realpath(path.c_str(), rpath);
+  if (rpath != nullptr)
     retVal = std::string{rpath};
-    free(rpath);
-  }
-  rpath = nullptr;
   return retVal;
 }
 
