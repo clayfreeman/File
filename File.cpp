@@ -99,7 +99,9 @@ std::string File::getContent(const std::string& path) {
       fseek(fp, 0, SEEK_END);
       retVal.resize(ftell(fp));
       rewind(fp);
-      fread(&retVal[0], 1, retVal.size(), fp);
+      if (fread(&retVal[0], 1, retVal.size(), fp) < 0) {
+        throw std::runtime_error{"The requested file is not readable"};
+      }
       fclose(fp);
     }
     else {
